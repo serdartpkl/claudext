@@ -1,8 +1,6 @@
 <p align="center">
-  <img src="https://res.cloudinary.com/dljhkznwj/image/upload/v1790759010/claudext-logo_bp9p8h.png" alt="ClaudExt" width="180">
+  <img src="https://res.cloudinary.com/dljhkznwj/image/upload/v1790759010/claudext-logo_bp9p8h.png" alt="ClaudExt" width="288">
 </p>
-
-<h1 align="center">ClaudExt</h1>
 
 <p align="center">
   <b>Back up everything Claude Code keeps on your machine, and bring it back on a new one —<br>
