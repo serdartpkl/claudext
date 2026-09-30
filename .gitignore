@@ -1,0 +1,19 @@
+# Backup archives and extracted trees — never commit user data
+*.zip
+/out/
+/backup/
+claude-backup-*/
+
+# Kept locally, not published: the test suite, design notes and this
+# project's own Claude Code settings
+/tests/
+/docs/
+/.claude/
+
+# Generated reports
+INVENTORY.md
+MANIFEST.json
+
+# Windows
+Thumbs.db
+desktop.ini

@@ -1,0 +1,1657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ClaudExt</title>
+<!-- The symbol as the tab icon, embedded as a data URI because the server
+     serves nothing but this page. -->
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 569.7 569.7' fill='%23d27354'%3E%3Cpath d='M552.6,267.75h-185.184c-15.234,0-22.864-18.419-12.091-29.191l73.296-73.296c6.678-6.678,6.678-17.505,0-24.183h0c-6.678-6.678-17.505-6.678-24.183,0l-73.296,73.296c-10.772,10.772-29.191,3.143-29.191-12.091V17.1c0-9.444-7.656-17.1-17.1-17.1h0c-9.444,0-17.1,7.656-17.1,17.1v185.184c0,15.234-18.419,22.864-29.191,12.091l-73.296-73.296c-6.678-6.678-17.505-6.678-24.183,0h0c-6.678,6.678-6.678,17.505,0,24.183l73.296,73.296c10.772,10.772,3.143,29.191-12.091,29.191H17.1c-9.444,0-17.1,7.656-17.1,17.1h0c0,9.444,7.656,17.1,17.1,17.1h185.184c15.234,0,22.864,18.419,12.091,29.191l-73.296,73.296c-6.678,6.678-6.678,17.505,0,24.183h0c6.678,6.678,17.505,6.678,24.183,0l73.296-73.296c10.772-10.772,29.191-3.143,29.191,12.091v185.184c0,9.444,7.656,17.1,17.1,17.1h0c9.444,0,17.1-7.656,17.1-17.1v-185.184c0-15.234,18.419-22.864,29.191-12.091l73.296,73.296c6.678,6.678,17.505,6.678,24.183,0h0c6.678-6.678,6.678-17.505,0-24.183l-73.296-73.296c-10.772-10.772-3.143-29.191,12.091-29.191h185.184c9.444,0,17.1-7.656,17.1-17.1h0c0-9.444-7.656-17.1-17.1-17.1h.002Z'/%3E%3Ccircle cx='106.537' cy='465.412' r='33.75'/%3E%3Ccircle cx='104.962' cy='104.287' r='33.75'/%3E%3Ccircle cx='464.737' cy='465.412' r='33.75'/%3E%3Ccircle cx='463.162' cy='104.287' r='33.75'/%3E%3C/svg%3E">
+
+<!-- Web fonts load without blocking: media="print" keeps the stylesheet out of
+     the critical path until it has arrived, then onload promotes it. On a
+     freshly reinstalled machine with no network the request simply fails and
+     the system stacks below take over — the page still renders, just in
+     Georgia and Segoe UI instead. -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'"
+      href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Instrument+Sans:wght@400;500&display=swap">
+<noscript>
+  <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&family=Instrument+Sans:wght@400;500&display=swap">
+</noscript>
+
+<style>
+/* Claude's palette: clay accent on warm paper, flat surfaces, no shadows. */
+:root {
+  --clay:        #c96442;
+  --clay-hover:  #b5573a;
+  --clay-soft:   #f4e6df;
+  --canvas:      #f0eee6;
+  --surface:     #faf9f7;
+  --raised:      #ffffff;
+  --ink:         #1f1e1d;
+  --ink-2:       #5f5d59;
+  --ink-3:       #8a8781;
+  --line:        rgba(31, 30, 29, 0.10);
+  --line-2:      rgba(31, 30, 29, 0.18);
+  --good:        #2c7a54;
+  --warn:        #9a6414;
+  --bad:         #a63d33;
+  /* First name is the web font; the rest carry the page when it never arrives. */
+  --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Cambria, Georgia, serif;
+  --sans:  "Instrument Sans", ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+  --mono:  ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --clay:       #d97757;
+    --clay-hover: #e08a6e;
+    --clay-soft:  #3a2b25;
+    --canvas:     #1f1e1d;
+    --surface:    #262625;
+    --raised:     #30302e;
+    --ink:        #f5f4f0;
+    --ink-2:      #b4b1aa;
+    --ink-3:      #8a8781;
+    --line:       rgba(245, 244, 240, 0.12);
+    --line-2:     rgba(245, 244, 240, 0.22);
+    --good:       #62b98c;
+    --warn:       #d9a441;
+    --bad:        #e08a80;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-font-smoothing: antialiased; }
+body {
+  margin: 0; background: var(--canvas); color: var(--ink);
+  font: 15px/1.65 var(--sans);
+}
+
+header {
+  padding: 34px 32px 0;
+  max-width: 900px; margin: 0 auto;
+}
+.brand { margin: 0; color: var(--ink); line-height: 0; }
+/* One drawn lockup instead of a mark beside a typeset word: the two can no
+   longer drift out of vertical alignment. */
+.brand .logo { height: 60px; width: auto; display: block; }
+
+/* Shown until the web fonts settle, then faded out. Without it the wordmark
+   visibly reflows from Georgia to Newsreader on first paint. */
+#loader {
+  position: fixed; inset: 0; z-index: 100;
+  background: var(--canvas);
+  display: flex; align-items: center; justify-content: center;
+  transition: opacity .45s ease;
+}
+#loader.gone { opacity: 0; pointer-events: none; }
+#loader svg {
+  width: 80px; height: 80px;
+  animation: spin 2.6s linear infinite;
+}
+@keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+@media (prefers-reduced-motion: reduce) {
+  #loader svg { animation: none; }
+}
+.tagline { color: var(--ink-2); font-size: 14px; margin: 5px 0 0; }
+
+nav { display: flex; gap: 26px; margin: 26px 0 0; border-bottom: 1px solid var(--line); }
+.tab {
+  background: none; border: 0; padding: 0 0 12px; cursor: pointer;
+  font: inherit; font-size: 14px; color: var(--ink-3);
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  /* The global button rule rounds every corner; on a 2px underline that
+     curvature is all you see. */
+  border-radius: 0;
+  transition: color .18s ease, border-color .18s ease;
+}
+.tab:hover { color: var(--ink-2); }
+.tab.on { color: var(--ink); border-bottom-color: var(--clay); }
+
+main { max-width: 900px; margin: 0 auto; padding: 30px 32px 80px; }
+
+/* Steps are a vertical spine: a numbered marker and a rule connecting them. */
+.step { position: relative; padding: 0 0 26px 46px; }
+.step:last-child { padding-bottom: 0; }
+.step::before {
+  content: attr(data-n);
+  position: absolute; left: 0; top: 0;
+  width: 27px; height: 27px; border-radius: 50%;
+  border: 1px solid var(--line-2); background: var(--surface);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+  transition: border-color .2s ease, background .2s ease, color .2s ease;
+}
+.step::after {
+  content: ""; position: absolute; left: 13px; top: 30px; bottom: 4px;
+  width: 1px; background: var(--line);
+}
+.step:last-child::after { display: none; }
+/* Four states, each visually distinct:
+     untouched  hollow marker, faint number   (default rule above)
+     active     clay outline on a clay tint
+     running    solid clay
+     done       solid grey, and the connector below it darkens so the path
+                already walked is visible at a glance */
+.step.active::before { border-color: var(--clay); color: var(--clay); background: var(--clay-soft); }
+.step.running::before { border-color: var(--clay); background: var(--clay); color: #fff; }
+.step.done::before { border-color: var(--ink-3); background: var(--ink-3); color: var(--surface); }
+.step.done::after { background: var(--line-2); }
+.step.locked { opacity: .4; pointer-events: none; }
+
+.step h2 {
+  font-family: var(--serif); font-weight: 500; font-size: 19px;
+  margin: 2px 0 2px; letter-spacing: -0.005em;
+}
+@keyframes pulse { 0%, 100% { opacity: .35 } 50% { opacity: 1 } }
+.step.done h2, .step.done .sub { color: var(--ink-3); }
+.step .sub { color: var(--ink-2); font-size: 13.5px; margin: 0 0 14px; }
+
+.panel {
+  background: var(--surface); border: 1px solid var(--line);
+  border-radius: 12px; padding: 16px 18px;
+  /* Flex rather than flow: an inline-block button sits in a line box and
+     carries the parent's line-height as dead space beneath it. */
+  display: flex; flex-direction: column; align-items: stretch;
+}
+.panel > button { align-self: flex-start; }
+
+.row { display: flex; gap: 9px; align-items: center; }
+.row button { flex: none; white-space: nowrap; }
+input[type=text] {
+  font: inherit; font-size: 14px; padding: 8px 12px; width: 100%;
+  border: 1px solid var(--line-2); border-radius: 8px;
+  background: var(--raised); color: var(--ink);
+  transition: border-color .16s ease;
+}
+input[type=text]:focus { outline: none; border-color: var(--clay); }
+input[type=text]::placeholder { color: var(--ink-3); }
+
+button {
+  font: inherit; font-size: 14px; padding: 8px 15px; cursor: pointer;
+  border: 1px solid var(--line-2); border-radius: 8px;
+  background: var(--raised); color: var(--ink);
+  transition: border-color .16s ease, background .16s ease, transform .08s ease;
+}
+button:hover:not(:disabled) { border-color: var(--ink-3); }
+button:active:not(:disabled) { transform: scale(.985); }
+button:disabled { opacity: .38; cursor: not-allowed; }
+button.primary {
+  background: var(--clay); border-color: var(--clay); color: #fff; font-weight: 500;
+}
+button.primary:hover:not(:disabled) { background: var(--clay-hover); border-color: var(--clay-hover); }
+button.ghost { border-color: transparent; background: transparent; color: var(--ink-2); padding: 6px 10px; }
+button.ghost:hover { background: var(--clay-soft); color: var(--ink); border-color: transparent; }
+
+.browser {
+  margin-top: 10px; border: 1px solid var(--line); border-radius: 10px;
+  background: var(--raised); max-height: 230px; overflow-y: auto;
+}
+.entry {
+  padding: 8px 14px; cursor: pointer; display: flex; align-items: center; gap: 11px;
+  font-size: 13.5px; border-bottom: 1px solid var(--line);
+}
+.entry:last-child { border-bottom: none; }
+.entry:hover { background: var(--clay-soft); }
+/* Drawn, not typed: the box-drawing characters this used to rely on are
+   missing from some Windows font stacks and rendered as tofu. */
+.entry .glyph { color: var(--ink-3); width: 15px; height: 15px; flex: none; }
+.entry .size { margin-left: auto; color: var(--ink-3); font-size: 12px; font-variant-numeric: tabular-nums; }
+/* Where the list is, and the way out of it. Sticky so a long folder can be
+   closed without scrolling back up. */
+.browser-head {
+  position: sticky; top: 0; z-index: 1;
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 6px 5px 14px; background: var(--raised);
+  border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-3);
+}
+.browser-head .where { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.browser-head button { padding: 5px; line-height: 0; }
+.browser-head .glyph { width: 14px; height: 14px; display: block; }
+
+.src { display: flex; align-items: center; gap: 11px; padding: 9px 0; border-bottom: 1px solid var(--line); cursor: pointer; }
+.src:last-child { border-bottom: none; }
+.src input { accent-color: var(--clay); width: 15px; height: 15px; cursor: pointer; }
+.src .name { font-size: 14px; }
+.src .meta { margin-left: auto; color: var(--ink-3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+
+.choice { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0;
+          font-size: 13.5px; color: var(--ink-2); cursor: pointer; }
+.choice input { accent-color: var(--clay); margin-top: 3px; flex: none; cursor: pointer; }
+.choice b { font-weight: 500; color: var(--ink); }
+.claude-note { margin-top: 9px; }
+.claude-note:empty { display: none; }
+
+.map { border: 1px solid var(--line); border-left: 2px solid var(--good); border-radius: 0 8px 8px 0;
+       padding: 10px 13px; margin-bottom: 7px; background: var(--raised); }
+.map.pending { border-left-color: var(--clay); }
+.map.skipped { border-left-color: var(--line-2); opacity: .6; }
+.map code { font-family: var(--mono); font-size: 12px; word-break: break-all; color: var(--ink); }
+.map .to { color: var(--good); font-size: 12.5px; margin-top: 3px; }
+
+.progress-head {
+  display: flex; justify-content: space-between; margin-bottom: 7px;
+  font-family: var(--mono); font-size: 11.5px; color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.bar { height: 3px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.bar > div { height: 100%; background: var(--clay); width: 0; transition: width .35s cubic-bezier(.4,0,.2,1); }
+.bar.failed > div { background: var(--bad); }
+/* The gap sits on the log, not under the bar, so an empty log leaves nothing
+   behind — the space under the bar before the first line arrived was that
+   margin with nothing to separate. */
+.log {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.75; color: var(--ink-2);
+  max-height: 170px; overflow-y: auto; margin-top: 10px;
+}
+.log:empty { display: none; }
+/* Each line carries a dot on its left. The line being worked on is clay with a
+   pulsing dot and a trailing ellipsis; once it is done both the dot and the
+   text settle to grey. */
+.log .line { display: flex; align-items: baseline; gap: 8px; }
+.log .line::before {
+  content: ""; flex: none; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--ink-3); transform: translateY(-1px);
+  transition: background .25s ease;
+}
+.log .line.current { color: var(--clay); }
+.log .line.current::before {
+  background: var(--clay);
+  animation: pulse 1.3s ease-in-out infinite;
+}
+.log .line.current .txt::after { content: "..."; }
+.log .line.ok .txt::after { content: " [OK]"; color: var(--good); }
+.log .line.bad, .log .line.failed { color: var(--bad); }
+.log .line.bad::before, .log .line.failed::before { background: var(--bad); }
+.log .line.failed .txt::after { content: " [FAILED]"; }
+.log .line.warned { color: var(--warn); }
+.log .line.warned::before { background: var(--warn); }
+.log .line.warned .txt::after { content: " [WARN]"; }
+.map .kept { color: var(--ink-3); font-size: 12.5px; margin-top: 5px; }
+details.auto { margin-top: 6px; }
+details.auto summary { cursor: pointer; color: var(--ink-2); font-size: 13.5px; padding: 4px 0; }
+details.auto[open] summary { margin-bottom: 7px; }
+.warn-note { margin-top: 9px; color: var(--warn); font-size: 13px; }
+.map .kind { font-size: 12.5px; color: var(--ink-2); margin-bottom: 4px; }
+.warn-note:empty { display: none; }
+footer button.ghost { font-size: 12.5px; padding: 3px 9px; margin-left: 6px; }
+/* An empty result box still occupied a line plus its margin, which read as
+   dead space under the button. */
+.result:empty { display: none; }
+.result { margin-top: 13px; font-size: 14px; }
+.result .headline {
+  font-family: var(--serif); font-size: 27px; font-weight: 500;
+  letter-spacing: -0.01em; line-height: 1.25;
+}
+/* Rules above and below the verdict, carrying its colour and dissolving to
+   the right so they frame the word without boxing it in. */
+.result .headline::before,
+.result .headline::after {
+  content: ""; display: block; height: 2px; border-radius: 1px; margin: 11px 0;
+}
+.result .headline.good::before,
+.result .headline.good::after {
+  background: linear-gradient(to right, var(--good), transparent 88%);
+}
+.result .headline.bad::before,
+.result .headline.bad::after {
+  background: linear-gradient(to right, var(--bad), transparent 88%);
+}
+.result .headline.warn::before,
+.result .headline.warn::after {
+  background: linear-gradient(to right, var(--warn), transparent 88%);
+}
+.result .detail { color: var(--ink-2); font-size: 13px; margin-top: 5px; font-family: var(--mono); word-break: break-all; }
+.result .reason { color: var(--ink-2); font-size: 14px; margin-top: 7px; max-width: 60ch; }
+.good { color: var(--good); } .warn { color: var(--warn); } .bad { color: var(--bad); }
+.note { color: var(--ink-2); font-size: 13.5px; }
+.kv { display: flex; gap: 22px; flex-wrap: wrap; margin-top: 9px; }
+.kv div { font-size: 13px; color: var(--ink-2); }
+.kv b { display: block; font-weight: 400; color: var(--ink); font-size: 15px;
+        font-variant-numeric: tabular-nums; }
+.hide { display: none; }
+
+footer {
+  max-width: 900px; margin: 0 auto; padding: 0 32px 40px;
+  color: var(--ink-3); font-size: 12.5px; text-align: center;
+}
+</style>
+</head>
+<body>
+
+<div id="loader">
+  <svg viewBox="0 0 569.7 569.7" role="img" aria-label="Loading">
+      <path fill="#d27354" d="M552.6,267.75h-185.184c-15.234,0-22.864-18.419-12.091-29.191l73.296-73.296c6.678-6.678,6.678-17.505,0-24.183h0c-6.678-6.678-17.505-6.678-24.183,0l-73.296,73.296c-10.772,10.772-29.191,3.143-29.191-12.091V17.1c0-9.444-7.656-17.1-17.1-17.1h0c-9.444,0-17.1,7.656-17.1,17.1v185.184c0,15.234-18.419,22.864-29.191,12.091l-73.296-73.296c-6.678-6.678-17.505-6.678-24.183,0h0c-6.678,6.678-6.678,17.505,0,24.183l73.296,73.296c10.772,10.772,3.143,29.191-12.091,29.191H17.1c-9.444,0-17.1,7.656-17.1,17.1h0c0,9.444,7.656,17.1,17.1,17.1h185.184c15.234,0,22.864,18.419,12.091,29.191l-73.296,73.296c-6.678,6.678-6.678,17.505,0,24.183h0c6.678,6.678,17.505,6.678,24.183,0l73.296-73.296c10.772-10.772,29.191-3.143,29.191,12.091v185.184c0,9.444,7.656,17.1,17.1,17.1h0c9.444,0,17.1-7.656,17.1-17.1v-185.184c0-15.234,18.419-22.864,29.191-12.091l73.296,73.296c6.678,6.678,17.505,6.678,24.183,0h0c6.678-6.678,6.678-17.505,0-24.183l-73.296-73.296c-10.772-10.772-3.143-29.191,12.091-29.191h185.184c9.444,0,17.1-7.656,17.1-17.1h0c0-9.444-7.656-17.1-17.1-17.1h.002Z"/>
+    <g>
+      <circle fill="#d27354" cx="106.537" cy="465.412" r="33.75"/>
+      <circle fill="#d27354" cx="104.962" cy="104.287" r="33.75"/>
+      <circle fill="#d27354" cx="464.737" cy="465.412" r="33.75"/>
+      <circle fill="#d27354" cx="463.162" cy="104.287" r="33.75"/>
+    </g>
+  </svg>
+</div>
+
+<header>
+  <h1 class="brand">
+    <svg class="logo" viewBox="0 0 2162.201 569.7" role="img" aria-label="ClaudExt">
+      <path fill="#d27354" d="M552.6,267.75h-185.184c-15.234,0-22.864-18.419-12.091-29.191l73.296-73.296c6.678-6.678,6.678-17.505,0-24.183h0c-6.678-6.678-17.505-6.678-24.183,0l-73.296,73.296c-10.772,10.772-29.191,3.143-29.191-12.091V17.1c0-9.444-7.656-17.1-17.1-17.1h0c-9.444,0-17.1,7.656-17.1,17.1v185.184c0,15.234-18.419,22.864-29.191,12.091l-73.296-73.296c-6.678-6.678-17.505-6.678-24.183,0h0c-6.678,6.678-6.678,17.505,0,24.183l73.296,73.296c10.772,10.772,3.143,29.191-12.091,29.191H17.1c-9.444,0-17.1,7.656-17.1,17.1h0c0,9.444,7.656,17.1,17.1,17.1h185.184c15.234,0,22.864,18.419,12.091,29.191l-73.296,73.296c-6.678,6.678-6.678,17.505,0,24.183h0c6.678,6.678,17.505,6.678,24.183,0l73.296-73.296c10.772-10.772,29.191-3.143,29.191,12.091v185.184c0,9.444,7.656,17.1,17.1,17.1h0c9.444,0,17.1-7.656,17.1-17.1v-185.184c0-15.234,18.419-22.864,29.191-12.091l73.296,73.296c6.678,6.678,17.505,6.678,24.183,0h0c6.678-6.678,6.678-17.505,0-24.183l-73.296-73.296c-10.772-10.772-3.143-29.191,12.091-29.191h185.184c9.444,0,17.1-7.656,17.1-17.1h0c0-9.444-7.656-17.1-17.1-17.1h.002Z"/>
+      <g>
+        <circle fill="#d27354" cx="106.537" cy="465.412" r="33.75"/>
+        <circle fill="#d27354" cx="104.962" cy="104.287" r="33.75"/>
+        <circle fill="#d27354" cx="464.737" cy="465.412" r="33.75"/>
+        <circle fill="#d27354" cx="463.162" cy="104.287" r="33.75"/>
+      </g>
+      <g>
+        <path fill="currentColor" d="M903.565,331.563c-5.866,22.205-15.502,56.56-21.786,70.805-13.407,2.095-52.789,11.73-84.211,11.73-109.769,0-156.691-70.385-156.272-133.648,0-83.792,70.385-141.189,165.07-141.189,41.058,0,67.452,9.217,79.184,11.731,3.352,20.948,5.446,41.058,7.96,64.939l-7.122,1.257c-11.731-48.6-40.221-67.453-94.686-67.453-82.954,0-120.241,54.884-120.241,120.242,0,81.278,48.6,134.067,122.755,134.067,58.236,0,82.117-31.422,102.227-74.575l7.123,2.095Z"/>
+        <path fill="currentColor" d="M913.197,401.949c26.813-1.676,31.003-7.541,31.003-33.517v-196.074c0-28.908-3.352-31.841-30.165-34.354v-5.027c20.529-2.514,43.153-10.055,50.275-14.245v249.701c0,25.976,3.771,31.841,31.422,33.517v5.865h-82.535v-5.865Z"/>
+        <path fill="currentColor" d="M1133.192,412.423c-.838,0-9.217-3.352-13.406-7.541-5.028-5.446-6.704-10.474-9.218-19.691-16.339,12.569-35.192,27.232-50.694,27.232-28.908,0-48.599-21.786-48.599-47.762,0-18.853,12.987-32.26,41.896-41.058,21.367-6.284,47.762-16.34,57.397-22.205,0-20.529-.419-56.979-38.125-56.979-6.703.419-29.327,2.095-36.449,35.611-.839,2.933-3.353,7.123-9.218,7.123s-12.568-5.866-12.568-14.245c0-6.285,5.027-11.312,11.73-15.083,10.475-7.123,38.545-24.3,59.073-28.908,20.529,0,46.505,13.407,46.505,50.275v90.077c0,17.177,6.284,23.88,15.083,23.88,7.122,0,13.825-2.514,18.434-5.446l3.771,7.123-35.611,17.596ZM1110.568,311.872c-8.798,5.028-35.192,15.083-44.409,18.854-18.854,7.122-30.165,15.083-30.165,30.584,0,21.786,17.596,33.099,32.679,33.099,14.244,0,33.098-10.475,41.896-21.367v-61.169Z"/>
+        <path fill="currentColor" d="M1215.725,340.361c0,41.896,20.11,52.789,43.572,52.789,16.759,0,36.868-8.379,54.465-25.976v-92.171c0-24.719-5.865-26.395-20.948-29.327l-15.92-2.514v-4.609c18.015-.419,46.504-4.608,56.979-7.541v136.581c0,20.948,4.608,23.043,20.947,24.3l12.569.838v5.866c-17.178,2.095-35.192,8.379-51.532,14.244l-2.095-2.095v-32.26c-10.893,7.96-21.367,17.178-36.03,24.719-12.15,7.122-20.948,9.217-31.842,9.217-25.138,0-50.274-12.987-50.274-59.492v-77.508c0-24.719-6.285-26.813-15.083-29.327l-13.407-2.933v-4.19c9.637-.838,40.64-5.865,49.856-7.96-1.257,8.379-1.257,23.043-1.257,54.464v54.884Z"/>
+        <path fill="currentColor" d="M1488.634,132.977c21.786-2.933,47.343-10.055,55.722-14.245v246.349c0,20.529,5.027,24.719,18.854,26.395l15.082,1.257v5.028c-9.217,1.676-34.773,6.703-54.046,14.663v-29.746l-24.3,13.407c-24.3,12.987-38.125,16.339-43.152,16.339-36.031,0-79.603-30.165-79.603-84.211-.838-54.884,46.504-99.293,110.187-99.293,9.217,0,25.557,1.257,36.868,4.608v-62.006c0-28.489-3.352-29.746-35.611-33.098v-5.446ZM1524.245,262.854c-12.149-15.083-33.098-21.786-55.303-21.786-26.813,0-67.452,15.083-67.452,75.832,0,47.761,31.422,76.669,68.709,76.669,25.138-.419,42.734-13.825,54.046-22.623v-108.092Z"/>
+        <path fill="#d27354" d="M1732.016,145.354l-31.708,109.648h25.979c18.546,0,31.98-2.829,40.3-8.489,8.317-5.658,15.478-16.126,21.48-31.401h7.568l-28.435,100.647h-8.183c2.454-8.454,3.682-15.682,3.682-21.685,0-5.861-1.195-10.567-3.58-14.115-2.388-3.545-5.66-6.169-9.818-7.876-4.162-1.704-12.924-2.557-26.287-2.557h-26.39l-26.799,91.852c-2.592,8.866-3.887,15.617-3.887,20.252,0,3.548,1.704,6.684,5.114,9.41,2.317,1.911,8.112,2.864,17.389,2.864h24.548c26.594,0,47.901-4.705,63.928-14.115,16.023-9.41,30.378-25.776,43.062-49.097h7.569l-26.185,77.122h-214.388l2.659-7.569c10.638-.271,17.798-1.228,21.479-2.863,5.453-2.455,9.41-5.591,11.865-9.41,3.683-5.591,8.045-17.318,13.093-35.186l48.687-167.337c3.816-13.501,5.729-23.797,5.729-30.89,0-5.181-1.81-9.237-5.421-12.171-3.615-2.931-10.673-4.398-21.173-4.398h-4.296l2.454-7.569h199.25l-17.185,66.894h-7.568c.952-6.271,1.432-11.523,1.432-15.751,0-7.227-1.774-13.297-5.318-18.207-4.639-6.271-11.389-11.046-20.253-14.319-6.546-2.455-21.617-3.683-45.209-3.683h-35.186Z"/>
+        <path fill="#d27354" d="M1917.97,222.681c6.68,7.092,11.728,14.185,15.138,21.275,2.455,4.91,6.476,17.797,12.069,38.663l18.002-27.003c4.772-6.546,10.567-12.785,17.389-18.718,6.817-5.933,12.817-9.989,18.002-12.172,3.272-1.362,6.885-2.045,10.842-2.045,5.862,0,10.535,1.569,14.013,4.705,3.478,3.139,5.217,6.955,5.217,11.456,0,5.185-1.022,8.729-3.068,10.638-3.82,3.41-8.183,5.114-13.093,5.114-2.863,0-5.933-.614-9.205-1.841-6.412-2.18-10.708-3.273-12.888-3.273-3.273,0-7.16,1.911-11.661,5.728-8.457,7.093-18.548,20.799-30.275,41.119l16.774,70.371c2.589,10.775,4.772,17.219,6.546,19.332,1.771,2.115,3.545,3.171,5.319,3.171,2.863,0,6.204-1.566,10.023-4.705,7.499-6.271,13.91-14.454,19.229-24.549l7.16,3.683c-8.592,16.094-19.505,29.458-32.731,40.095-7.502,6-13.844,9.001-19.024,9.001-7.64,0-13.706-4.296-18.207-12.888-2.863-5.318-8.796-28.23-17.797-68.734-21.275,36.96-38.325,60.757-51.143,71.395-8.32,6.817-16.365,10.228-24.139,10.228-5.453,0-10.433-1.979-14.934-5.932-3.273-2.999-4.909-7.022-4.909-12.07,0-4.5,1.502-8.249,4.5-11.251,3.002-2.998,6.684-4.5,11.047-4.5s9.001,2.183,13.91,6.546c3.545,3.139,6.271,4.705,8.183,4.705,1.637,0,3.75-1.09,6.342-3.273,6.409-5.181,15.139-16.365,26.185-33.549,11.047-17.184,18.274-29.592,21.685-37.231-8.458-33.14-13.025-50.663-13.706-52.574-3.139-8.864-7.23-15.138-12.274-18.82-5.047-3.682-12.479-5.523-22.298-5.523-3.139,0-6.75.137-10.842.409v-7.365l54.62-9.614Z"/>
+        <path fill="#d27354" d="M2132.505,171.948l-15.956,55.642h32.117l-3.478,12.888h-31.913l-35.186,120.695c-3.819,12.958-5.728,21.346-5.728,25.162,0,2.32.543,4.091,1.636,5.318,1.091,1.228,2.385,1.842,3.888,1.842,3.407,0,7.907-2.385,13.501-7.16,3.273-2.727,10.567-11.114,21.889-25.162l6.751,5.114c-12.549,18.277-24.414,31.165-35.595,38.663-7.64,5.182-15.343,7.773-23.116,7.773-6.003,0-10.912-1.876-14.729-5.625-3.819-3.75-5.728-8.557-5.728-14.422,0-7.365,2.18-18.616,6.546-33.754l34.163-118.445h-30.89l2.046-7.979c15-4.091,27.479-10.193,37.436-18.309,9.954-8.112,21.07-22.196,33.345-42.243h9.001Z"/>
+      </g>
+    </svg>
+  </h1>
+  <p class="tagline">Back up Claude Code's local state, and put it back where it belongs.</p>
+  <nav>
+    <button class="tab on" data-view="backup">Back Up</button>
+    <button class="tab" data-view="restore">Restore</button>
+  </nav>
+</header>
+
+<main>
+  <section id="backup">
+    <div class="step running" data-n="1">
+      <h2>Where Is Claude?</h2>
+      <p class="sub">Found automatically for this system. Change it only if Claude Code keeps its files somewhere else.</p>
+      <div class="panel">
+        <div class="row">
+          <input type="text" id="bClaude" placeholder="Detecting&hellip;">
+          <button id="bClaudeBrowse">Browse</button>
+          <button class="primary" id="bClaudeInspect">Inspect</button>
+        </div>
+        <div id="bClaudeNote" class="note claude-note"></div>
+        <div id="bClaudeBrowser" class="browser hide"></div>
+      </div>
+    </div>
+
+    <div class="step" data-n="2">
+      <h2>What Should It Hold?</h2>
+      <p class="sub">Everything is selected by default. Your memory travels inside transcripts.</p>
+      <div class="panel"><div id="bSources" class="note">Looking For Claude&hellip;</div></div>
+    </div>
+
+    <div class="step" data-n="3">
+      <h2>Where Should It Go?</h2>
+      <p class="sub">An external drive is the safe choice — this machine is the one being wiped.</p>
+      <div class="panel">
+        <div class="row">
+          <input type="text" id="bDest" placeholder="E:\claude-backup">
+          <button id="bBrowse">Browse</button>
+        </div>
+        <div id="bToolNote" class="note claude-note"></div>
+        <div id="bBrowser" class="browser hide"></div>
+      </div>
+    </div>
+
+    <div class="step" data-n="4">
+      <h2>Run It</h2>
+      <p class="sub">Credentials are never collected. You will sign in again after restoring.</p>
+      <button class="primary" id="bRun" disabled>Create Backup</button>
+      <div id="bProgress" class="panel hide" style="margin-top: 14px;">
+        <div class="progress-head"><span id="bStep">Progress</span><span id="bPercent"></span></div>
+        <div class="bar"><div id="bBar"></div></div>
+        <div class="log" id="bLog"></div>
+        <div id="bResult" class="result"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="restore" class="hide">
+    <div class="step active" data-n="1">
+      <h2>Where Is Claude?</h2>
+      <p class="sub">Where Claude Code keeps its files on this machine. It does not have to exist yet.</p>
+      <div class="panel">
+        <div class="row">
+          <input type="text" id="rClaude" placeholder="Detecting&hellip;">
+          <button id="rClaudeBrowse">Browse</button>
+          <button class="primary" id="rClaudeInspect">Inspect</button>
+        </div>
+        <div id="rClaudeNote" class="note claude-note"></div>
+        <div id="rClaudeBrowser" class="browser hide"></div>
+      </div>
+    </div>
+
+    <div class="step" data-n="2">
+      <h2>Which Archive?</h2>
+      <p class="sub">Pick the zip ClaudExt wrote.</p>
+      <div class="panel">
+        <div class="row">
+          <input type="text" id="rPath" placeholder="E:\claude-backup\claude-backup-HOST-2026-09-07-1430.zip">
+          <button id="rBrowse">Browse</button>
+          <button class="primary" id="rInspect">Inspect</button>
+        </div>
+        <div id="rBrowser" class="browser hide"></div>
+      </div>
+    </div>
+
+    <div class="step locked" data-n="3" id="rStep3">
+      <h2>What Is Inside It?</h2>
+      <p class="sub">Read from the archive's own manifest, before anything is written.</p>
+      <div class="panel"><div id="rInfo" class="note">Inspect An Archive First.</div></div>
+    </div>
+
+    <div class="step locked" data-n="4" id="rStep4">
+      <h2>Where Do The Projects Go?</h2>
+      <p class="sub">Paths under the old home are rewritten for you. The rest need a decision.</p>
+      <div class="panel"><div id="rMapping" class="note">Inspect An Archive First.</div></div>
+    </div>
+
+    <div class="step locked" data-n="5" id="rStep5">
+      <h2>Where Should It Be Restored?</h2>
+      <p class="sub">Counts are compared against the manifest when it finishes.</p>
+      <div class="panel">
+        <button class="primary" id="rRun" disabled style="margin-bottom: 12px;">Restore Backup</button>
+        <label class="choice">
+          <input type="radio" name="rTarget" value="live" checked>
+          <span><b>This Machine</b> — write into your real Claude Code directories.</span>
+        </label>
+        <label class="choice">
+          <input type="radio" name="rTarget" value="folder">
+          <span><b>A Folder</b> — treat it as a stand-in home and touch nothing else.
+                Good for looking inside an archive.</span>
+        </label>
+        <div id="rLiveWarn" class="warn-note"></div>
+        <div class="row" id="rTargetRow" style="margin-top: 6px; display: none;">
+          <input type="text" id="rTargetPath" placeholder="E:\restore-test">
+          <button id="rTargetBrowse">Browse</button>
+        </div>
+        <div id="rTargetBrowser" class="browser hide"></div>
+      </div>
+      <div id="rProgress" class="panel hide" style="margin-top: 14px;">
+        <div class="progress-head"><span id="rStep">Progress</span><span id="rPercent"></span></div>
+        <div class="bar"><div id="rBar"></div></div>
+        <div class="log" id="rLog"></div>
+        <div id="rResult" class="result"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer><span id="footNote">Serving on your machine only. Closing this tab does not stop a running job.</span>
+  <button class="ghost" id="stopServer">Stop ClaudExt</button></footer>
+
+<script>
+const TOKEN = new URLSearchParams(location.search).get('t') || '';
+const $ = id => document.getElementById(id);
+
+// Everything that came from the server, a file name or an archive is escaped
+// before it goes into markup. An archive's manifest is data from elsewhere: a
+// crafted one must not run script in a page that holds the token for every
+// endpoint, restore included.
+const esc = v => String(v ?? '').replace(/[&<>"']/g, c =>
+  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+
+// 'backup' or 'restore' while a job runs, otherwise null. Every function that
+// decides whether a run button is enabled checks this first: without it,
+// anything that re-evaluated readiness mid-run — the source sizes arriving
+// after a reload, a ticked box, a typed path — switched the button back on.
+let busy = null;
+
+// What /api/info said about each tab's Claude folder — b for the backup side,
+// r for the restore side — and about this machine. null until it answers.
+const claude = { b: null, r: null };
+// true while a folder is being checked, so its step shows it is working.
+const checking = { b: false, r: false };
+let machine = null;
+
+// inspected: an archive has been read and its mapping built. Until then the
+// restore button has nothing to restore, whatever else is filled in. Declared
+// up here because checking a Claude folder refreshes the restore button while
+// the script is still loading.
+let mapping = {}, skipped = [], unresolved = [], inspected = false;
+// inspectRound drops an inspection the path changed under; inspectedPath is
+// the archive that was actually read, which is the one a restore must use.
+let inspectRound = 0, inspectedPath = '';
+
+// Measuring the backup sources: the latest request, and whether it failed.
+// Up here for the same reason — the first stage refresh runs during loading.
+let measureRound = 0, measureFailed = false;
+
+// destMissing: the server said the destination does not exist.
+// pollGeneration: bumped by every run and every attach; a poll from an older
+// generation stops instead of drawing into a panel that now belongs to another.
+let destMissing = false, pollGeneration = 0;
+
+// Whether a Claude process was running when this machine was last asked.
+let claudeRunning = false;
+
+// stopped: the server has been told to stop and answers nothing more, so no
+// button may start anything. stopRequested: asked while a job ran; the server
+// stops by itself once that job has finished.
+let stopped = false, stopRequested = false;
+
+// Fade the loader once the fonts have resolved — which document.fonts.ready
+// also does when they fail, so an offline machine is not left staring at a
+// spinner. The timeout is the belt to that braces: some browsers keep the
+// promise pending while a stylesheet request hangs.
+(function dismissLoader() {
+  const loader = $('loader');
+  if (!loader) return;
+  let done = false;
+  const hide = () => {
+    if (done) return;
+    done = true;
+    loader.classList.add('gone');
+    setTimeout(() => loader.remove(), 600);
+  };
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(hide).catch(hide);
+  }
+  setTimeout(hide, 2500);
+})();
+
+async function api(path, options = {}) {
+  const opts = Object.assign({ headers: {} }, options);
+  opts.headers['X-ClaudExt-Token'] = TOKEN;
+  if (opts.body) opts.headers['Content-Type'] = 'application/json';
+  const res = await fetch(path, opts);
+  const json = await res.json().catch(() => ({ ok: false, error: 'Unreadable response' }));
+  if (!json.ok) {
+    const error = new Error(json.error || 'Request failed');
+    // 409 means another job is already running, and callers join it.
+    error.status = res.status;
+    throw error;
+  }
+  return json.data;
+}
+
+function size(bytes) {
+  if (!bytes) return '—';
+  // Below a kilobyte, show bytes: a 350-byte file rounding to "0 KB" reads as
+  // though it were empty.
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1048576) return (bytes / 1024).toFixed(0) + ' KB';
+  if (bytes < 1073741824) return (bytes / 1048576).toFixed(1) + ' MB';
+  return (bytes / 1073741824).toFixed(2) + ' GB';
+}
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
+  document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x === t));
+  $('backup').classList.toggle('hide', t.dataset.view !== 'backup');
+  $('restore').classList.toggle('hide', t.dataset.view !== 'restore');
+});
+
+// Exactly one step is current at any moment; everything before it is done and
+// everything after it is untouched. Driving this from one function is what
+// stops two steps claiming 'active' at once, which is what happened when each
+// call site advanced its own neighbour.
+function setStage(section, index, running) {
+  const steps = [...document.querySelectorAll('#' + section + ' .step')];
+  steps.forEach((step, i) => {
+    step.classList.remove('active', 'done', 'running');
+    if (i < index) step.classList.add('done');
+    else if (i === index) step.classList.add(running ? 'running' : 'active');
+  });
+}
+
+// A backup has no explicit confirmation between picking a destination and
+// picking sources, so the stage follows what is actually ready.
+function refreshBackupStage() {
+  if (stopped) { $('bRun').disabled = true; $('bRun').textContent = 'ClaudExt Has Stopped'; return; }
+  if (busy) {
+    $('bRun').disabled = true;
+    $('bRun').textContent = busy === 'backup' ? 'Backing Up…' : 'A Restore Is Running';
+    return;
+  }
+  const s = backupState();
+
+  // Nothing can run without Claude to read, somewhere to write it and
+  // something to put there.
+  $('bRun').disabled = !s.ready;
+  $('bRun').textContent =
+    checking.b ? 'Detecting…'
+    : !claude.b ? 'Inspect The Claude Folder First'
+    : !s.located ? 'Claude Was Not Found There'
+    : measureFailed ? 'Could Not Measure Sources'
+    : !s.measured ? 'Measuring…'
+    : !s.hasDestination ? (destMissing ? 'That Destination Does Not Exist' : 'Choose A Destination First')
+    : !s.anyChecked ? 'Select At Least One Source'
+    : 'Create Backup';
+
+  // Detection and measuring each hold their step in the running state until
+  // they have answered; measuring is real work, it walks gigabytes. A step
+  // with nothing ticked is where the stage stays.
+  if (!claude.b) setStage('backup', 0, checking.b);
+  else if (!s.located) setStage('backup', 0);
+  else if (!s.measured) setStage('backup', 1, !measureFailed);
+  else if (!s.anyChecked) setStage('backup', 1);
+  else setStage('backup', s.hasDestination ? 3 : 2);
+}
+
+function backupState() {
+  const boxes = [...document.querySelectorAll('#bSources input')];
+  const s = {
+    located: !!(claude.b && claude.b.Found),
+    hasDestination: $('bDest').value.trim() !== '' && !destMissing,
+    measured: boxes.length > 0,
+    anyChecked: boxes.some(b => b.checked)
+  };
+  s.ready = s.located && s.hasDestination && s.measured && s.anyChecked;
+  return s;
+}
+
+// Controls that would change what a running job is about. Left live, a
+// re-inspect or a new archive redrew steps and rows under the job's feet.
+const LOCKED_WHILE_BUSY = ['bClaude', 'bClaudeBrowse', 'bClaudeInspect', 'bDest', 'bBrowse',
+  'rClaude', 'rClaudeBrowse', 'rClaudeInspect', 'rPath', 'rBrowse', 'rInspect',
+  'rTargetPath', 'rTargetBrowse'];
+
+function setBusy(kind) {
+  busy = kind;
+  LOCKED_WHILE_BUSY.forEach(id => { $(id).disabled = !!kind; });
+  document.querySelectorAll('input[name="rTarget"], #bSources input').forEach(r => { r.disabled = !!kind; });
+  // Every list, hidden ones too: a list whose answer is still on its way is
+  // hidden, and only closing it makes that answer out of date. Closing only
+  // the visible ones let a late answer open under a locked field mid-run.
+  if (kind) document.querySelectorAll('.browser').forEach(closeBrowser);
+  // Mapping rows are built per archive, so they are not in the list above.
+  // A kept row keeps its field and Browse disabled after the job as well.
+  document.querySelectorAll('#rMapping .map').forEach(row => {
+    const kept = row.classList.contains('skipped');
+    row.querySelectorAll('input, .browse').forEach(c => { c.disabled = !!kind || kept; });
+    const keep = row.querySelector('.skip');
+    if (keep) keep.disabled = !!kind;
+  });
+  refreshBackupStage();
+  refreshRunState();
+}
+
+const ICON = {
+  up:      svg('M8 12.5V3.5M4.5 7L8 3.5 11.5 7'),
+  folder:  svg('M1.5 12.5v-9h4l1.5 2h7.5v7z'),
+  archive: svg('M3.5 1.5h9v13h-9zM7 3.5h2M7 6h2M7 8.5h2'),
+  close:   svg('M4.5 4.5l7 7M11.5 4.5l-7 7')
+};
+function svg(d) {
+  return '<svg class="glyph" viewBox="0 0 16 16" fill="none" stroke="currentColor" ' +
+         'stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+         '<path d="' + d + '"/></svg>';
+}
+
+async function browseInto(container, path, includeFiles, onPick) {
+  // Closing the list, or opening another folder in it, makes an answer still
+  // on its way out of date. Without this a late answer reopened a list that
+  // had been closed, under a row whose old path had just been kept.
+  const round = container.browseRound = (container.browseRound || 0) + 1;
+  const qs = new URLSearchParams();
+  if (path) qs.set('path', path);
+  if (includeFiles) qs.set('includeFiles', 'true');
+  const data = await api('/api/browse?' + qs.toString());
+  if (round !== container.browseRound) return;
+  container.innerHTML = '';
+  container.classList.remove('hide');
+  if (container.opener) container.opener.textContent = 'Close';
+
+  const head = document.createElement('div');
+  head.className = 'browser-head';
+  const where = document.createElement('span');
+  where.className = 'where';
+  where.textContent = data.IsDriveList ? 'Drives' : (data.Path || path);
+  const close = document.createElement('button');
+  close.className = 'ghost';
+  close.title = 'Close';
+  close.setAttribute('aria-label', 'Close');
+  close.innerHTML = ICON.close;
+  close.onclick = () => closeBrowser(container);
+  head.append(where, close);
+  container.appendChild(head);
+
+  if (!data.IsDriveList) {
+    const up = document.createElement('div');
+    up.className = 'entry';
+    up.innerHTML = ICON.up + '<span>Up One Level</span>';
+    up.onclick = () => browseInto(container, data.Parent, includeFiles, onPick).catch(() => { });
+    container.appendChild(up);
+  }
+  (data.Entries || []).forEach(e => {
+    const row = document.createElement('div');
+    row.className = 'entry';
+    row.innerHTML = (e.IsFolder ? ICON.folder : ICON.archive) +
+      '<span>' + esc(e.Name) + '</span>' +
+      (e.IsFolder ? '' : '<span class="size">' + size(e.Size) + '</span>');
+    row.onclick = () => {
+      if (stopped) { closeBrowser(container); return; }
+      onPick(e.Path);
+      if (e.IsFolder) browseInto(container, e.Path, includeFiles, onPick).catch(() => { });
+      else closeBrowser(container);
+    };
+    container.appendChild(row);
+  });
+}
+
+// A list opened by a Browse button closes four ways: its own close control,
+// the same button pressed again, Escape, or picking a file.
+function closeBrowser(container) {
+  container.browseRound = (container.browseRound || 0) + 1;
+  container.classList.add('hide');
+  container.innerHTML = '';
+  if (container.opener) container.opener.textContent = 'Browse';
+}
+
+function wireBrowser(button, container, startPath, includeFiles, onPick) {
+  container.opener = button;
+  button.onclick = () => {
+    if (!container.classList.contains('hide')) { closeBrowser(container); return; }
+    // A typed path that does not exist should still open something useful —
+    // unless the list was closed while the first answer was on its way.
+    const opened = (container.browseRound || 0) + 1;
+    browseInto(container, startPath(), includeFiles, onPick).catch(() => {
+      if (container.browseRound === opened) browseInto(container, '', includeFiles, onPick);
+    });
+  };
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.querySelectorAll('.browser:not(.hide)').forEach(closeBrowser);
+});
+
+wireBrowser($('bBrowse'), $('bBrowser'), () => $('bDest').value.trim(), false, p => {
+  $('bDest').value = p;
+  try { localStorage.setItem(DEST_KEY, p); } catch { }
+  checkTool();
+  refreshBackupStage();
+  refreshArchivePlaceholder();
+});
+const DEST_KEY = 'claudext.destination';
+try {
+  const saved = localStorage.getItem(DEST_KEY);
+  if (saved) $('bDest').value = saved;
+} catch { /* private windows and blocked storage are fine; the field just starts empty */ }
+
+$('bDest').addEventListener('input', () => {
+  try { localStorage.setItem(DEST_KEY, $('bDest').value.trim()); } catch { }
+  // First, so the verdict about the previous path is forgotten before the
+  // button is drawn for the new one.
+  checkTool(350);
+  refreshBackupStage();
+  refreshArchivePlaceholder();
+});
+
+// Whether the destination already holds a current ClaudExt. Only a report —
+// the backup is what creates or refreshes the copy — so picking a folder never
+// writes to it. The round counter drops answers about a path since edited.
+let toolRound = 0, toolTimer = null;
+function checkTool(delay) {
+  clearTimeout(toolTimer);
+  const round = ++toolRound;
+  const dest = $('bDest').value.trim();
+  destMissing = false;
+  if (!dest) { $('bToolNote').textContent = ''; return; }
+  toolTimer = setTimeout(async () => {
+    let t;
+    try { t = await api('/api/tool?destination=' + encodeURIComponent(dest)); }
+    catch (e) {
+      if (round === toolRound) $('bToolNote').innerHTML = '<span class="bad">' + esc(e.message) + '</span>';
+      return;
+    }
+    if (round !== toolRound) return;
+    $('bToolNote').innerHTML = describeTool(t);
+    // The server refuses a destination that does not exist, so the button
+    // says so first instead of opening a run that fails at once. Redrawn only
+    // when that verdict is new: this check also runs right after a backup, and
+    // an unconditional redraw took back the steps the finished run had marked.
+    if (t.Status === 'no-destination') {
+      destMissing = true;
+      refreshBackupStage();
+    }
+  }, delay || 0);
+}
+
+function describeTool(t) {
+  const drive = t.SameDriveAsHome
+    ? '<div class="warn-note">This Is The Same Drive As Your Home Folder. If You Are Formatting This Machine, Choose An External Drive.</div>'
+    : '';
+  return describeToolState(t) + drive;
+}
+
+function describeToolState(t) {
+  const files = n => n + ' File' + (n === 1 ? '' : 's');
+  if (t.Status === 'no-destination') return '<span class="bad">That Folder Does Not Exist</span>';
+  if (t.Status === 'missing') {
+    return 'ClaudExt Tool: <span class="warn">Not There Yet</span> · It Will Be Created With The Backup';
+  }
+  if (t.Status === 'linked') {
+    return 'ClaudExt Tool: <span class="bad">Holds A Link</span> · It Will Be Left Untouched And Not Verified';
+  }
+  if (t.Status === 'outdated') {
+    return 'ClaudExt Tool: <span class="warn">Out Of Date</span> · ' + files(t.Differences) +
+      ' Will Be Brought In Line With The Backup';
+  }
+  return 'ClaudExt Tool: <span class="good">Present And Up To Date</span> · ' + files(t.Files) +
+    (t.IsSelf ? ' · Running From Here' : '');
+}
+
+checkTool();
+
+// Run once before detection answers, so the button says "Detecting…" from the
+// first paint instead of offering a backup it cannot start yet.
+refreshBackupStage();
+wireBrowser($('rBrowse'), $('rBrowser'), () => '', true, p => {
+  $('rPath').value = p;
+  resetInspection();
+});
+
+// Example paths in the shape this operating system uses. The archive example
+// is the name a backup taken here today would get, in the folder last used.
+const PLACES = {
+  Windows: { backup: 'E:\\claude-backup', test: 'E:\\restore-test', sep: '\\' },
+  macOS:   { backup: '/Volumes/Backup/claude-backup', test: '/Volumes/Backup/restore-test', sep: '/' },
+  Linux:   { backup: '/media/backup/claude-backup', test: '/media/backup/restore-test', sep: '/' }
+};
+
+function refreshArchivePlaceholder() {
+  if (!machine) return;
+  const place = PLACES[machine.Platform] || PLACES.Linux;
+  const folder = ($('bDest').value.trim() || place.backup).replace(/[\\/]+$/, '');
+  $('rPath').placeholder = folder + place.sep + 'claude-backup-' + machine.Host + '-' + machine.Today + '-HHMM.zip';
+}
+
+function describeClaude(info, restoring) {
+  if (info.IsFile) return '<span class="bad">That Is A File, Not A Folder</span>';
+  const origin =
+    info.Source === 'env' ? 'From CLAUDE_CONFIG_DIR'
+    : info.Source === 'chosen' ? 'Chosen By You'
+    : 'Default Location On ' + esc(info.Platform);
+  if (info.Found) {
+    return '<span class="good">Found</span> · ' + origin +
+      (restoring || info.HasProjects ? '' : ' · <span class="warn">No Transcripts In It</span>');
+  }
+  return (restoring
+    ? '<span class="warn">Not There Yet</span> · It Will Be Created'
+    : '<span class="bad">Nothing There</span>') + ' · ' + origin;
+}
+
+// Measuring runs again whenever the Claude folder changes. The round counter
+// drops answers to earlier questions: measuring the previous folder can
+// finish after the new one.
+// Boxes the user unticked, kept apart from the list itself: the list is
+// cleared whenever the folder changes and has to come back as it was left.
+const unticked = new Set();
+function measureSources() {
+  const round = ++measureRound;
+  measureFailed = false;
+  $('bSources').innerHTML = 'Measuring What Is In That Folder&hellip;';
+  refreshBackupStage();
+  api('/api/sources?claudeDir=' + encodeURIComponent(claude.b.ConfigDir)).then(rows => {
+    if (round !== measureRound) return;
+    $('bSources').innerHTML = '';
+    rows.forEach(s => {
+      const label = document.createElement('label');
+      label.className = 'src';
+      label.innerHTML =
+        '<input type="checkbox"' + (unticked.has(s.Id) ? '' : ' checked') + ' data-id="' + esc(s.Id) + '"' +
+          (busy ? ' disabled' : '') + '>' +
+        '<span class="name">' + esc(s.Label || s.Id) + '</span>' +
+        '<span class="meta">' + (s.FileCount || 0).toLocaleString() + ' Files · ' + size(s.ByteCount) + '</span>';
+      $('bSources').appendChild(label);
+    });
+    document.querySelectorAll('#bSources input').forEach(b => b.addEventListener('change', () => {
+      if (b.checked) unticked.delete(b.dataset.id); else unticked.add(b.dataset.id);
+      refreshBackupStage();
+    }));
+    refreshBackupStage();
+  }).catch(e => {
+    if (round !== measureRound) return;
+    // A flag, not a label written here: the next refresh would otherwise put
+    // back 'Measuring…' for work that is not happening.
+    measureFailed = true;
+    $('bSources').innerHTML = '<span class="bad">' + esc(e.message) + '</span>';
+    refreshBackupStage();
+  });
+}
+
+// Each tab checks its own Claude folder: the backup side reads from it, the
+// restore side writes into it, and on a machine mid-migration they can differ.
+// An empty folder asks the server to detect one.
+const locateRound = { b: 0, r: 0 };
+async function locateClaude(side, dir) {
+  const round = ++locateRound[side];
+  checking[side] = true;
+  claude[side] = null;
+  $(side + 'ClaudeNote').textContent = 'Checking…';
+  refreshSide(side);
+  let data;
+  try {
+    data = await api('/api/info' + (dir ? '?claudeDir=' + encodeURIComponent(dir) : ''));
+  } catch (e) {
+    if (round !== locateRound[side]) return;
+    checking[side] = false;
+    $(side + 'ClaudeNote').innerHTML = '<span class="bad">' + esc(e.message) + '</span>';
+    refreshSide(side);
+    return;
+  }
+  if (round !== locateRound[side]) return;
+  checking[side] = false;
+
+  claudeRunning = !!data.ClaudeRunning;
+  refreshLiveWarning();
+  if (!machine) {
+    machine = data;
+    const place = PLACES[data.Platform] || PLACES.Linux;
+    $('bDest').placeholder = place.backup;
+    $('rTargetPath').placeholder = place.test;
+    refreshArchivePlaceholder();
+  }
+
+  claude[side] = data.Claude;
+  if (!dir) $(side + 'Claude').value = data.Claude.ConfigDir;
+  $(side + 'ClaudeNote').innerHTML = describeClaude(data.Claude, side === 'r');
+
+  if (side === 'b') {
+    if (data.Claude.Found) measureSources();
+    else { $('bSources').textContent = 'Choose A Folder That Holds Claude First.'; refreshBackupStage(); }
+  } else {
+    if (!inspected && !busy) setStage('restore', data.Claude.IsFile ? 0 : 1);
+    refreshRunState();
+  }
+}
+
+function refreshSide(side) {
+  if (side === 'b') refreshBackupStage(); else refreshRunState();
+}
+
+// A changed folder is not checked until Inspect is pressed, the same as an
+// archive. Until then nothing said about the previous folder may stay on
+// screen: a "Found" left under a path it was never said about reads as a
+// verdict on the new one.
+function markUnchecked(side) {
+  locateRound[side]++;   // an answer still on its way belongs to the old path
+  checking[side] = false;
+  claude[side] = null;
+  $(side + 'ClaudeNote').textContent = 'Not Inspected Yet.';
+  if (side === 'b') {
+    measureRound++;
+    measureFailed = false;
+    $('bSources').textContent = 'Inspect The Claude Folder First.';
+  } else if (!busy) {
+    setStage('restore', 0);
+    dropRestoreResult();
+  }
+  refreshSide(side);
+}
+
+['b', 'r'].forEach(side => {
+  const inspect = () => {
+    closeBrowser($(side + 'ClaudeBrowser'));
+    if (side === 'r') dropRestoreResult();
+    // An empty field asks for detection again, which also refills it.
+    locateClaude(side, $(side + 'Claude').value.trim());
+  };
+  $(side + 'Claude').addEventListener('input', () => markUnchecked(side));
+  $(side + 'Claude').addEventListener('keydown', e => { if (e.key === 'Enter') inspect(); });
+  $(side + 'ClaudeInspect').onclick = inspect;
+  wireBrowser($(side + 'ClaudeBrowse'), $(side + 'ClaudeBrowser'), () => $(side + 'Claude').value.trim(), false, p => {
+    $(side + 'Claude').value = p;
+    markUnchecked(side);
+  });
+  locateClaude(side, '');
+});
+
+const progressUi = prefix => ({
+  bar: $(prefix + 'Bar'), log: $(prefix + 'Log'),
+  step: $(prefix + 'Step'), percent: $(prefix + 'Percent')
+});
+
+function resetProgress(ui) {
+  ui.bar.style.width = '0';
+  ui.bar.parentElement.classList.remove('failed');
+  ui.log.textContent = '';
+  ui.step.textContent = 'Progress';
+  ui.percent.textContent = '0%';
+}
+
+function addLine(log, text, cls, level) {
+  const line = document.createElement('div');
+  line.className = 'line' + (cls ? ' ' + cls : '');
+  if (level) line.dataset.level = level;
+  const span = document.createElement('span');
+  span.className = 'txt';
+  span.textContent = text;
+  line.appendChild(span);
+  log.appendChild(line);
+  log.scrollTop = log.scrollHeight;
+}
+
+// The line being worked on becomes [OK] when the next one starts, or when the
+// job ends well; [FAILED] when it does not. A line the server flagged as a
+// warning — a tool copy it could not verify — says [WARN] instead of [OK].
+function settleCurrent(log, ok) {
+  const line = log.querySelector('.line.current');
+  if (!line) return;
+  line.classList.remove('current');
+  line.classList.add(!ok ? 'failed' : line.dataset.level === 'warn' ? 'warned' : 'ok');
+}
+
+// The server keeps every message in order, so each poll appends from where
+// the last one stopped and a phase that came and went between polls still
+// gets its line. Polls are chained rather than put on an interval: a slow
+// response must not overlap the next request and append its lines twice.
+//
+// A failed poll is retried with a growing pause. The listener answers one
+// request at a time and can be busy measuring gigabytes; giving up on the
+// first error left the page locked as busy for good, with no result.
+const POLL_RETRIES = 8;
+
+// Draws one snapshot: the lines not shown yet, then the step and the bar.
+function drawJob(ui, job, shown) {
+  const lines = Array.isArray(job.Log) ? job.Log : (job.Log ? [job.Log] : []);
+  for (; shown.count < lines.length; shown.count++) {
+    settleCurrent(ui.log, true);
+    const entry = lines[shown.count];
+    if (typeof entry === 'string') addLine(ui.log, entry, 'current');
+    else addLine(ui.log, entry.Text, 'current', entry.Level);
+  }
+  if (job.Steps > 0) ui.step.textContent = 'Progress [' + job.Step + '/' + job.Steps + ']';
+  ui.percent.textContent = (job.Percent || 0) + '%';
+  ui.bar.style.width = (job.Percent || 0) + '%';
+}
+
+// Settles the last line and the bar once a job has stopped running.
+function settleJob(ui, job) {
+  const ok = job.Status === 'completed' && !(job.Result && job.Result.AllMatched === false);
+  settleCurrent(ui.log, ok);
+  if (job.Status === 'completed') {
+    ui.bar.style.width = '100%';
+    ui.percent.textContent = '100%';
+  }
+  if (!ok) ui.bar.parentElement.classList.add('failed');
+}
+
+function pollJob(id, ui, done) {
+  const generation = pollGeneration;
+  const shown = { count: 0 };
+  let failures = 0;
+  const tick = async () => {
+    let job;
+    try { job = await api('/api/job/' + id); }
+    catch (e) {
+      if (generation !== pollGeneration) return;
+      failures++;
+      if (failures < POLL_RETRIES) { setTimeout(tick, Math.min(5000, 500 * 2 ** failures)); return; }
+      settleCurrent(ui.log, false);
+      ui.bar.parentElement.classList.add('failed');
+      addLine(ui.log, e.message, 'bad');
+      done({ Status: 'lost', Error: e.message });
+      return;
+    }
+    // A newer run or attach has taken over the page: stop without drawing.
+    if (generation !== pollGeneration) return;
+    failures = 0;
+
+    drawJob(ui, job, shown);
+    if (job.Status === 'running') { setTimeout(tick, 500); return; }
+    settleJob(ui, job);
+    done(job);
+  };
+  tick();
+}
+
+// Lines the server flagged as warnings. Counted from the log itself, so the
+// number under it always matches the [WARN] marks in it.
+function warnCount(job) {
+  const lines = Array.isArray(job.Log) ? job.Log : (job.Log ? [job.Log] : []);
+  return lines.filter(l => l && l.Level === 'warn').length;
+}
+const warnNote = n => n
+  ? '<div class="note" style="margin-top:8px"><span class="warn">' + n + ' Warning' + (n === 1 ? '' : 's') +
+    ' In The Log Above.</span></div>'
+  : '';
+
+// One renderer per operation, shared by the page that started a job and by a
+// page that reattached to it after a reload. The reattach path used to write
+// the headline alone, which is how the size, counts and path under Backed Up!
+// went missing.
+function lostContact() {
+  return '<div class="headline bad">Lost Contact!</div>' +
+    '<div class="reason">The server stopped answering, so the outcome is unknown. Reload the page: ' +
+    'if the job finished, its result is shown again.</div>';
+}
+
+function showBackupResult(job, attached) {
+  // Every step is claimed done only while the page still describes a runnable
+  // backup; a folder changed during the run keeps the stage it was given. A
+  // finished job drawn on load is shown, not claimed as this page's own run.
+  if (!attached && backupState().ready) setStage('backup', job.Status === 'completed' ? 4 : 3);
+  if (job.Status === 'lost') {
+    $('bResult').innerHTML = lostContact();
+    return;
+  }
+  if (job.Status === 'failed') {
+    $('bResult').innerHTML = '<div class="headline bad">Backup Failed!</div><div class="reason">' + esc(job.Error) + '</div>';
+    return;
+  }
+  const r = job.Result || {};
+  const skippedFiles = (r.Skipped || []).length;
+  const warnings = warnCount(job);
+  $('bResult').innerHTML =
+    '<div class="headline good">Backed Up!</div>' +
+    '<div class="kv"><div>Size<b>' + size(r.Bytes) + '</b></div>' +
+    '<div>Entries<b>' + (r.EntryCount || 0).toLocaleString() + '</b></div>' +
+    '<div>Programs Listed<b>' + esc(r.ProgramCount ?? '—') + '</b></div>' +
+    '<div>Plugins Listed<b>' + esc(r.PluginCount ?? '—') + '</b></div></div>' +
+    '<div class="detail">' + esc(r.ArchivePath) + '</div>' +
+    describeToolResult(r.Tool) +
+    (skippedFiles
+      ? '<div class="note warn" style="margin-top:8px">' + skippedFiles + ' Item' + (skippedFiles === 1 ? '' : 's') +
+        ' Could Not Be Copied — Changed, Locked Or Unreadable While The Backup Ran. The Log Above Names Them.</div>'
+      : '') +
+    warnNote(warnings);
+  // The copy was just created or repaired, so the destination note is stale.
+  checkTool();
+}
+
+function describeToolResult(tool) {
+  if (!tool) return '';
+  const line = html => '<div class="note" style="margin-top:8px">' + html + '</div>';
+  if (!tool.Verified) {
+    return line('<span class="bad">ClaudExt Tool Could Not Be Verified</span> · ' +
+      esc((tool.Problems || []).slice(0, 5).join(', ')));
+  }
+  const what = tool.Action === 'created' ? 'Created Beside The Archive'
+    : tool.Action === 'refreshed' ? 'Brought Up To Date Beside The Archive'
+    : 'Already Up To Date Beside The Archive';
+  return line('ClaudExt Tool: <span class="good">' + what + '</span> · ' + esc(tool.Files) + ' Files Verified');
+}
+
+// A 409 means a job was already running — started in another tab, say. What
+// the page tried was never attempted, so it is not drawn as a failure: the
+// page joins the job that is running instead.
+//
+// The page stays busy until the join has answered: clearing it first let a
+// second click start a second join, and every log line then appeared twice.
+async function joinRunningJob(prefix) {
+  $(prefix + 'Progress').classList.add('hide');
+  if (await attachToLatest(true)) return;
+  // Nothing could be shown. Say so, rather than leave a click with no trace.
+  setBusy(null);
+  const ui = progressUi(prefix);
+  resetProgress(ui);
+  addLine(ui.log, 'Another Job Was Already Running, So Yours Was Not Started', 'bad');
+  $(prefix + 'Progress').classList.remove('hide');
+  $(prefix + 'Result').innerHTML = '<div class="headline bad">Not Started!</div>' +
+    '<div class="reason">Another job is running on this server. Reload the page to follow it.</div>';
+}
+
+// A finished restore describes the settings it ran with. Once the target or
+// the Claude folder changes, its result no longer matches what the page
+// shows, so it goes — otherwise step 5 turned active again right above
+// 'Restored!'.
+function dropRestoreResult() {
+  if (busy) return;
+  $('rProgress').classList.add('hide');
+  $('rResult').innerHTML = '';
+}
+
+function outstandingPaths() {
+  return unresolved.filter(p => !(p in mapping) && !skipped.includes(p));
+}
+
+function showRestoreResult(job, attached) {
+  // A finished job drawn on load is shown without claiming the steps above
+  // it, which on a freshly loaded page describe nothing yet.
+  const stage = n => { if (!attached) setStage('restore', n); };
+  if (job.Status === 'lost') {
+    stage(4);
+    $('rResult').innerHTML = lostContact();
+    return;
+  }
+  if (job.Status === 'failed') {
+    stage(4);
+    $('rResult').innerHTML = '<div class="headline bad">Restore Failed!</div><div class="reason">' + esc(job.Error) + '</div>';
+    return;
+  }
+  const r = job.Result || {};
+  const note = html => '<div class="note" style="margin-top:8px">' + html + '</div>';
+  const warnings = warnCount(job);
+  const details =
+    '<div class="kv">' +
+      '<div>Files Rewritten<b>' + Number(r.FilesRewritten || 0).toLocaleString() + '</b></div>' +
+      '<div>Project Folders Renamed<b>' + Number(r.FoldersRenamed || 0).toLocaleString() + '</b></div>' +
+      '<div>Existing Files Kept Aside<b>' + Number(r.ReplacedCount || 0).toLocaleString() + '</b></div></div>' +
+    (r.ReplacedCount ? note('Files That Were Already Here And Differed Are Kept In <span class="detail">' + esc(r.ReplacedDir) + '</span>') : '') +
+    warnNote(warnings) +
+    (r.InventoryPath
+      ? note('Installed Programs And Plugins: <span class="detail">' + esc(r.InventoryPath) + '</span>')
+      : note('Installed Programs And Plugins Are Listed In INVENTORY.md Inside The Archive.'));
+  if (r.AllMatched) {
+    // All done only when nothing on the page is undecided.
+    stage(outstandingPaths().length ? 3 : 5);
+    $('rResult').innerHTML =
+      '<div class="headline good">Restored!</div>' +
+      note('Every Count Matches The Manifest' + (r.TargetRoot ? ', Written Into <span class="detail">' + esc(r.TargetRoot) + '</span>' : '') + '.') +
+      details +
+      note('Start Claude Code, Run /login, Then Check That A Project\'s Memory Came Back.');
+    return;
+  }
+  // Incomplete is not finished: the last step stays open so it can be run again.
+  stage(4);
+  $('rResult').innerHTML =
+    '<div class="headline bad">Restore Incomplete!</div><div class="reason">' +
+    (r.Mismatches || []).map(m => esc(m.Id) + ': Expected ' + esc(m.Expected) + ', Restored ' + esc(m.Actual)).join('<br>') + '</div>' +
+    details;
+}
+
+$('bRun').onclick = async () => {
+  const ids = [...document.querySelectorAll('#bSources input:checked')].map(c => c.dataset.id);
+  const ui = progressUi('b');
+  pollGeneration++;
+  setBusy('backup');
+  setStage('backup', 3, true);
+  $('bProgress').classList.remove('hide');
+  resetProgress(ui);
+  $('bResult').innerHTML = '';
+  // The job needs a moment to load the module before it reports anything;
+  // this line covers that wait so the panel never opens empty.
+  addLine(ui.log, 'Starting', 'current');
+  try {
+    const { JobId } = await api('/api/backup', {
+      method: 'POST',
+      body: JSON.stringify({ destination: $('bDest').value.trim(), sourceIds: ids, claudeDir: claude.b.ConfigDir })
+    });
+    pollJob(JobId, ui, job => {
+      afterJob();
+      showBackupResult(job);
+    });
+  } catch (e) {
+    if (e.status === 409) { joinRunningJob('b'); return; }
+    settleCurrent(ui.log, false);
+    ui.bar.parentElement.classList.add('failed');
+    setBusy(null);
+    setStage('backup', 3);
+    $('bResult').innerHTML = '<div class="headline bad">Backup Failed!</div><div class="reason">' + esc(e.message) + '</div>';
+  }
+};
+
+document.querySelectorAll('input[name="rTarget"]').forEach(radio => {
+  radio.onchange = () => {
+    const toFolder = document.querySelector('input[name="rTarget"]:checked').value === 'folder';
+    $('rTargetRow').style.display = toFolder ? 'flex' : 'none';
+    if (!toFolder) closeBrowser($('rTargetBrowser'));
+    dropRestoreResult();
+    refreshRunState();
+  };
+});
+wireBrowser($('rTargetBrowse'), $('rTargetBrowser'), () => $('rTargetPath').value.trim(), false, p => {
+  $('rTargetPath').value = p;
+  dropRestoreResult();
+  refreshRunState();
+});
+$('rTargetPath').addEventListener('input', () => {
+  dropRestoreResult();
+  refreshRunState();
+});
+
+// A job outlives the page: the server keeps working after the tab closes, and
+// a browser may reload a tab it put to sleep. On load, ask for the latest job
+// this server ran and show it — rejoining it while it runs, and drawing its
+// result once it has finished, so neither a reload nor a sleeping tab loses
+// the outcome.
+//
+// A finished job is drawn once from that answer rather than polled: a poll
+// that kept retrying could land in the middle of a newer run and unlock the
+// page under it. joining is true after a 409, when this page's own start was
+// refused. Returns whether a job was shown.
+async function attachToLatest(joining) {
+  const generation = ++pollGeneration;
+  let job;
+  try { job = await api('/api/job/latest'); }
+  catch { return false; }
+  if (generation !== pollGeneration || !job) return false;
+
+  const backup = job.Kind === 'backup';
+  document.querySelectorAll('.tab').forEach(t =>
+    t.classList.toggle('on', t.dataset.view === (backup ? 'backup' : 'restore')));
+  $('backup').classList.toggle('hide', !backup);
+  $('restore').classList.toggle('hide', backup);
+
+  const ui = progressUi(backup ? 'b' : 'r');
+  $(backup ? 'bProgress' : 'rProgress').classList.remove('hide');
+  resetProgress(ui);
+  $(backup ? 'bResult' : 'rResult').innerHTML = '';
+  // The panel sits inside the last restore step, which a fresh page keeps locked.
+  if (!backup) $('rStep5').classList.remove('locked');
+  if (joining) addLine(ui.log, 'Another Job Was Already Running, So Yours Was Not Started');
+
+  if (job.Status === 'running') {
+    if (!backup) ['rStep3', 'rStep4'].forEach(id => $(id).classList.remove('locked'));
+    setBusy(job.Kind);
+    if (backup) setStage('backup', 3, true);
+    else setStage('restore', 4, true);
+    addLine(ui.log, 'Reattached To Work Already In Progress');
+    pollJob(job.Id, ui, finished => {
+      afterJob();
+      if (backup) showBackupResult(finished);
+      else showRestoreResult(finished);
+    });
+    return true;
+  }
+
+  addLine(ui.log, 'Showing The Last Job This Server Ran');
+  if (joining) setBusy(null);
+  drawJob(ui, job, { count: 0 });
+  settleJob(ui, job);
+  if (backup) showBackupResult(job, true);
+  else showRestoreResult(job, true);
+  return true;
+}
+attachToLatest(false);
+
+// Ctrl+C in a console window nobody is looking at is not an obvious way out.
+$('stopServer').onclick = async () => {
+  let answer;
+  try {
+    answer = await api('/api/shutdown', { method: 'POST' });
+  } catch (e) {
+    $('footNote').textContent = e.message;
+    return;
+  }
+  if (answer && answer.Deferred) {
+    // The server stops by itself a few seconds after the job; the page
+    // follows it there when the job's result arrives.
+    stopRequested = true;
+    $('stopServer').disabled = true;
+    $('footNote').textContent = 'A Job Is Still Running. ClaudExt Stops Once It Has Finished.';
+    return;
+  }
+  markStopped();
+};
+
+// Everything that could reach the server is shut: buttons, fields, and any
+// folder list left open, whose entries are not buttons.
+function markStopped() {
+  stopped = true;
+  document.querySelectorAll('.browser').forEach(closeBrowser);
+  document.querySelectorAll('button, input').forEach(c => { c.disabled = true; });
+  refreshBackupStage();
+  refreshRunState();
+  $('footNote').textContent = 'ClaudExt Has Stopped. You Can Close This Tab.';
+}
+
+// A job finished after Stop was pressed: the server is going, and so is the page.
+function afterJob() {
+  setBusy(null);
+  if (stopRequested) markStopped();
+}
+
+function restoreTarget() {
+  const toFolder = document.querySelector('input[name="rTarget"]:checked').value === 'folder';
+  return toFolder ? $('rTargetPath').value.trim() : '';
+}
+
+// Everything below the archive step belongs to one inspected archive. A new
+// path — typed, browsed or inspected again — clears all of it, so a restore
+// can never run one archive with another archive's manifest and mapping.
+function resetInspection() {
+  if (busy === 'restore') return;
+  inspectRound++;
+  inspected = false;
+  inspectedPath = '';
+  mapping = {}; skipped = []; unresolved = [];
+  $('rInfo').textContent = 'Inspect An Archive First.';
+  $('rMapping').textContent = 'Inspect An Archive First.';
+  ['rStep3', 'rStep4', 'rStep5'].forEach(id => $(id).classList.add('locked'));
+  $('rProgress').classList.add('hide');
+  $('rResult').innerHTML = '';
+  setStage('restore', claude.r && !claude.r.IsFile ? 1 : 0);
+  refreshRunState();
+}
+
+$('rPath').addEventListener('input', resetInspection);
+
+$('rInspect').onclick = async () => {
+  if (busy) return;
+  const path = $('rPath').value.trim();
+  resetInspection();
+  const round = inspectRound;
+  $('rInfo').textContent = 'Reading\u2026';
+  try {
+    const info = await api('/api/archive?path=' + encodeURIComponent(path));
+    if (round !== inspectRound) return;
+    const m = info.Manifest;
+    const taken = new Date(m.createdAt);
+    const when = isNaN(taken) ? String(m.createdAt || '') : taken.toLocaleString();
+    $('rInfo').innerHTML =
+      '<div>Taken <b>' + esc(when) + '</b>' + (m.sourceHost ? ' On ' + esc(m.sourceHost) : '') + '</div>' +
+      '<div class="kv"><div>Entries<b>' + Number(info.EntryCount || 0).toLocaleString() + '</b></div>' +
+      '<div>Projects<b>' + (m.projectPaths || []).filter(Boolean).length + '</b></div>' +
+      '<div>Home Was<b style="font-size:13px">' + esc(m.sourceHome) + '</b></div></div>' +
+      '<div class="note" style="margin-top:10px">' +
+        (m.sources || []).map(s => esc(s.id) + ' ' + Number(s.files || 0).toLocaleString()).join(' &nbsp;·&nbsp; ') + '</div>';
+    $('rStep3').classList.remove('locked');
+    setStage('restore', 2);
+    await loadMapping(path, round);
+  } catch (e) {
+    if (round !== inspectRound) return;
+    // Shown in an unlocked step: dimmed to 40%, the only explanation of what
+    // went wrong was the hardest thing on the page to read. The stage stays on
+    // the archive step, which is the one still to be done.
+    $('rStep3').classList.remove('locked');
+    $('rInfo').innerHTML = '<span class="bad">' + esc(e.message) + '</span>';
+  }
+};
+
+async function loadMapping(path, round) {
+  const data = await api('/api/mapping', {
+    method: 'POST', body: JSON.stringify({ path: path })
+  });
+  if (round !== inspectRound) return;
+  mapping = {}; skipped = []; unresolved = [];
+  inspected = true;
+  inspectedPath = path;
+  const box = $('rMapping');
+  box.innerHTML = '';
+  $('rStep4').classList.remove('locked');
+  $('rStep5').classList.remove('locked');
+
+  // A folder the archive names itself — an auto memory folder — is a row
+  // even when the home did not change: the archive alone never picks where
+  // files go.
+  const rows = data.Rows || [];
+  if (!rows.length) {
+    box.innerHTML = '<div class="note good">The home directory is unchanged, so nothing needs remapping.</div>';
+    setStage('restore', 4);
+    refreshRunState();
+    return;
+  }
+
+  const decisions = rows.filter(r => !r.Resolved).length;
+  const intro = document.createElement('div');
+  intro.className = 'note';
+  intro.style.marginBottom = '12px';
+  intro.innerHTML = (data.RemapNeeded
+      ? 'Home Moved From <code>' + esc(data.SourceHome) + '</code> To <code>' + esc(data.TargetHome) + '</code>.'
+      : 'The Home Directory Is Unchanged.') +
+    (decisions ? ' ' + decisions + ' Path' + (decisions === 1 ? '' : 's') + ' Need' +
+      (decisions === 1 ? 's' : '') + ' A Decision.' : '');
+  box.appendChild(intro);
+
+  // The paths that need a decision come first. The ones rewritten for you can
+  // run to dozens, and listed in full they buried the few that matter.
+  const auto = document.createElement('details');
+  auto.className = 'auto';
+  const automatic = rows.length - decisions;
+  auto.innerHTML = '<summary>' + automatic + ' Path' + (automatic === 1 ? '' : 's') + ' Rewritten Automatically</summary>';
+
+  rows.forEach(row => {
+    const d = document.createElement('div');
+    d.className = 'map' + (row.Resolved ? '' : ' pending');
+    if (row.Resolved) {
+      mapping[row.From] = row.To;
+      d.innerHTML = '<code>' + esc(row.From) + '</code><div class="to">&rarr; ' + esc(row.To) + '</div>';
+      auto.appendChild(d);
+      return;
+    } else {
+      unresolved.push(row.From);
+      d.innerHTML = (row.Kind === 'auto-memory'
+          ? '<div class="kind">Auto Memory Folder — Where The Archive Says It Was</div>' : '') +
+        '<code>' + esc(row.From) + '</code>' +
+        '<div class="row" style="margin-top:8px">' +
+          '<input type="text" placeholder="Where Does This Live Now?">' +
+          '<button class="browse">Browse</button>' +
+          '<button class="ghost skip">Keep The Old Path</button>' +
+        '</div>' +
+        '<div class="kept hide">Restored As It Was, Under Its Old Path</div>' +
+        '<div class="browser hide"></div>';
+      const input = d.querySelector('input');
+      const browse = d.querySelector('.browse');
+      const keep = d.querySelector('.skip');
+      const picker = d.querySelector('.browser');
+      wireBrowser(browse, picker, () => input.value.trim(), false, p => {
+        if (input.disabled) return;
+        input.value = p;
+        input.oninput();
+      });
+      input.oninput = () => {
+        if (input.value.trim()) {
+          mapping[row.From] = input.value.trim();
+          d.classList.remove('pending');
+        } else {
+          delete mapping[row.From];
+          d.classList.add('pending');
+        }
+        refreshRunState();
+      };
+      // This never left a project out: the restore has always written its
+      // transcripts unchanged, under the name they already had — what the CLI
+      // does with an answer left blank. The button now says so, and a press
+      // can be taken back without re-inspecting and losing every other row.
+      // What the home mapping would make of it, filled in but left in view:
+      // one look confirms it, one edit changes it.
+      if (row.Suggested) { input.value = row.Suggested; input.oninput(); }
+      keep.onclick = () => {
+        const wasKept = skipped.includes(row.From);
+        if (wasKept) {
+          skipped = skipped.filter(x => x !== row.From);
+          d.className = 'map pending';
+          keep.textContent = 'Keep The Old Path';
+        } else {
+          skipped.push(row.From);
+          delete mapping[row.From];
+          input.value = '';
+          closeBrowser(picker);
+          d.className = 'map skipped';
+          keep.textContent = 'Undo';
+        }
+        input.disabled = !wasKept;
+        browse.disabled = !wasKept;
+        d.querySelector('.kept').classList.toggle('hide', wasKept);
+        refreshRunState();
+      };
+    }
+    box.appendChild(d);
+  });
+  if (automatic) box.appendChild(auto);
+
+  refreshRunState();
+}
+
+// A restore into this machine while Claude runs loses the project records:
+// Claude writes ~/.claude.json back from memory when it exits.
+function refreshLiveWarning() {
+  const live = document.querySelector('input[name="rTarget"]:checked').value === 'live';
+  $('rLiveWarn').textContent = live && claudeRunning
+    ? 'Claude Is Running. Close Claude Code And The Claude App Before Restoring Into This Machine — ' +
+      'On Exit It Writes Its Settings Back Over The Restored Ones. Start ClaudExt From ClaudExt.cmd Instead.'
+    : '';
+}
+
+// A 'Restore Anyway' offer holds only for the state it was made in.
+function refreshRunState() {
+  refreshRunStateOf();
+  const force = $('rForce');
+  if (force) force.disabled = $('rRun').disabled;
+}
+
+function refreshRunStateOf() {
+  refreshLiveWarning();
+  if (stopped) { $('rRun').disabled = true; $('rRun').textContent = 'ClaudExt Has Stopped'; return; }
+  if (busy) {
+    $('rRun').disabled = true;
+    $('rRun').textContent = busy === 'restore' ? 'Restoring…' : 'A Backup Is Running';
+    return;
+  }
+  const blocked = label => { $('rRun').disabled = true; $('rRun').textContent = label; };
+  if (!inspected) return blocked('Restore Backup');
+  if (checking.r) return blocked('Detecting…');
+  if (!claude.r) { setStage('restore', 0); return blocked('Inspect The Claude Folder First'); }
+  if (claude.r.IsFile) { setStage('restore', 0); return blocked('The Claude Folder Is A File'); }
+
+  const outstanding = outstandingPaths();
+  const needsFolder =
+    document.querySelector('input[name="rTarget"]:checked').value === 'folder' &&
+    $('rTargetPath').value.trim() === '';
+
+  // The stage follows the state both ways: taking a decision back moves it
+  // back to the mapping step, rather than only ever moving forward.
+  setStage('restore', outstanding.length > 0 ? 3 : 4);
+  $('rRun').disabled = outstanding.length > 0 || needsFolder;
+  $('rRun').textContent =
+    outstanding.length > 0
+      ? outstanding.length + ' Path' + (outstanding.length > 1 ? 's' : '') + ' Still Undecided'
+      : needsFolder ? 'Choose A Folder First'
+      : 'Restore Backup';
+}
+
+// force: the person saw that Claude is running and chose to go on anyway.
+// The server checks again on every start; the note on the page can be old.
+async function runRestore(force) {
+  const ui = progressUi('r');
+  pollGeneration++;
+  setBusy('restore');
+  setStage('restore', 4, true);
+  $('rProgress').classList.remove('hide');
+  resetProgress(ui);
+  $('rResult').innerHTML = '';
+  addLine(ui.log, 'Starting', 'current');
+  try {
+    const { JobId } = await api('/api/restore', {
+      method: 'POST',
+      body: JSON.stringify({
+        archive: inspectedPath, mapping: mapping,
+        skipped: skipped, target: restoreTarget(),
+        claudeDir: claude.r ? claude.r.ConfigDir : '',
+        force: !!force
+      })
+    });
+    pollJob(JobId, ui, job => {
+      afterJob();
+      showRestoreResult(job);
+    });
+  } catch (e) {
+    if (e.status === 409) { joinRunningJob('r'); return; }
+    settleCurrent(ui.log, false);
+    ui.bar.parentElement.classList.add('failed');
+    setBusy(null);
+    setStage('restore', 4);
+    if (e.status === 423) {
+      // Nothing was written. Said as a choice, not as a failure.
+      claudeRunning = true;
+      refreshLiveWarning();
+      $('rResult').innerHTML = '<div class="headline warn">Claude Is Running</div><div class="reason">' + esc(e.message) +
+        '</div><div class="row" style="margin-top:12px"><button id="rForce" class="ghost">Restore Anyway</button></div>';
+      $('rForce').onclick = () => runRestore(true);
+      return;
+    }
+    $('rResult').innerHTML = '<div class="headline bad">Restore Failed!</div><div class="reason">' + esc(e.message) + '</div>';
+  }
+}
+$('rRun').onclick = () => runRestore(false);
+</script>
+</body>
+</html>
