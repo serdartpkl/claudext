@@ -14,6 +14,7 @@
   <img alt="Windows" src="https://img.shields.io/badge/Windows-verified-0078D6?logo=windows&logoColor=white">
   <img alt="Zero dependencies" src="https://img.shields.io/badge/dependencies-none-2ea44f">
   <img alt="Works offline" src="https://img.shields.io/badge/works-offline-lightgrey">
+  <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-blue"></a>
 </p>
 
 ---
@@ -258,6 +259,10 @@ to another machine.
 
 **How big is a backup?** Sessions compress well: 5 GB of sessions made a
 1.6 GB archive in testing.
+
+## License
+
+[MIT](LICENSE) © 2026 Serdar Tepekule
 
 ---
 

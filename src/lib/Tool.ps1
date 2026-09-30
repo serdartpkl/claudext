@@ -4,7 +4,7 @@
 # created when missing, brought in line when it differs, and verified file by
 # file afterwards.
 
-$script:ClaudExtToolItems = @('src', 'extract.ps1', 'import.ps1', 'gui.ps1', 'ClaudExt.cmd', 'README.md')
+$script:ClaudExtToolItems = @('src', 'extract.ps1', 'import.ps1', 'gui.ps1', 'ClaudExt.cmd', 'README.md', 'LICENSE')
 
 function Get-ClaudExtToolFiles {
     <#
